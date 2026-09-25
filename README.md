@@ -332,8 +332,262 @@ UCP ليس مجرد تطبيق Remote واحد.
 * 3D/Model Viewer.
 * Presentation Engine.
 
-وبذلك يصبح UCP منصة للتحكم والتشغيل وليس مجرد برنامج Remote.
+وبذلك يصبح UCP منصة للتحكم والتشغيل وليس مجرد برنامجRemote.
 
 
-ويجب أن يتم تصميم UCP من البداية بحيث يمكن إضافة أجهزة وأنظمة تشغيل واستخدامات جديدة مستقبلاً دون تغيير أساس البروتوكول.
+ويجب أن يتم تصميم UCP من البداية بحيث يمكن إضافة أجهزة وأنظمة تشغيل واستخدامات جديدة مستقبلاً دون تغيير أس
+اس البروتوكول.
 
+
+
+# UCP — Universal USB & Device Support
+
+## دعم الأجهزة التي لا تدعم Bluetooth
+
+يجب أن يدعم UCP الأجهزة التي لا تحتوي على Bluetooth أو التي لا يمكن التحكم بها لاسلكيًا مباشرة.
+
+يتم ذلك باستخدام:
+
+* USB.
+* USB OTG.
+* USB Host.
+* USB HID.
+* UCP USB Adapter.
+* ESP32/Hardware Bridge.
+* أجهزة تحويل مستقبلية خاصة بـ UCP.
+
+مثال:
+
+**USB Gamepad**
+→ USB
+→ **UCP Receiver / Adapter**
+→ Wi-Fi
+→ **Phone / PC / TV**
+
+## دعم أجهزة الألعاب
+
+يهدف UCP إلى دعم أكبر عدد ممكن من أجهزة التحكم، حسب البروتوكول الذي يوفره الجهاز ونظام التشغيل.
+
+أمثلة:
+
+* PlayStation 4 Controllers.
+* PlayStation Controllers الأصلية.
+* PlayStation Controllers غير الأصلية.
+* USB Gamepads.
+* Generic HID Controllers.
+* Joysticks.
+* Arcade Controllers.
+* Steering Wheels.
+* Flight Controllers.
+* Pedals.
+* Fight Sticks.
+* أجهزة تحكم مخصصة.
+
+ولا يشترط أن يكون الجهاز Bluetooth حتى يستطيع UCP استخدامه.
+
+## تحويل USB إلى UCP
+
+يمكن استخدام UCP كطبقة تحويل:
+
+**USB Device**
+→ **UCP USB Adapter**
+→ **UCP Protocol**
+→ **Target Device**
+
+مثال:
+
+**PS4 Controller**
+→ USB
+→ UCP
+→ Wi-Fi
+→ Android Phone
+
+أو:
+
+**PS4 Controller**
+→ USB
+→ UCP
+→ Windows 11
+
+أو:
+
+**USB Gamepad**
+→ USB
+→ UCP
+→ Android TV
+
+## دعم الهاتف
+
+يمكن للهاتف أن يكون:
+
+### Controller
+
+**Phone → Wi-Fi → PC / TV / Phone**
+
+### Receiver
+
+**USB Controller → Phone**
+
+### Bridge
+
+**USB Device → Phone → Wi-Fi → Computer / TV**
+
+### Remote
+
+**Phone → Wi-Fi → Smart TV / Android TV / PC**
+
+## دعم الكمبيوتر
+
+يمكن للكمبيوتر أن يعمل كـ:
+
+* UCP Receiver.
+* UCP Controller.
+* USB Device Bridge.
+* Gamepad Receiver.
+* Keyboard/Mouse Receiver.
+* Smart Device Gateway.
+* Reading Engine Host.
+* Game Engine Host.
+
+مثال:
+
+**USB Gamepad**
+→ Windows 11
+→ UCP Receiver
+→ Game / Emulator
+
+## دعم التلفزيون
+
+يجب تصميم UCP لدعم:
+
+* Android TV.
+* Google TV.
+* Android TV Box.
+* Smart TV المدعوم.
+* Media Players المدعومة.
+
+مثال:
+
+**USB Gamepad**
+→ Android TV
+→ UCP
+→ Game / Emulator
+
+أو:
+
+**Phone**
+→ Wi-Fi
+→ Android TV
+→ UCP Receiver
+→ Game Controller
+
+## Universal Device Adapter
+
+يجب أن يحتوي UCP على طبقة تسمى:
+
+**Universal Device Adapter — UDA**
+
+وظيفتها اكتشاف الجهاز وتحويله إلى نموذج UCP موحد.
+
+```text
+Physical Device
+      ↓
+USB / Bluetooth / Wi-Fi / OTG / HID
+      ↓
+Universal Device Adapter
+      ↓
+UCP Protocol
+      ↓
+Target Device
+```
+
+وبذلك لا يحتاج كل برنامج إلى معرفة تفاصيل كل جهاز.
+
+## التعرف على الجهاز
+
+عند توصيل جهاز جديد، يحاول UCP اكتشاف:
+
+* Vendor ID.
+* Product ID.
+* Device Type.
+* HID Reports.
+* Buttons.
+* Axes.
+* Triggers.
+* D-Pad.
+* Sensors.
+* Vibration.
+* LEDs.
+* Battery Status عند توفرها.
+
+ثم ينشئ UCP Device Profile مناسبًا للجهاز.
+
+## الأجهزة الأصلية وغير الأصلية
+
+يجب ألا يعتمد UCP على اسم الشركة فقط.
+
+إذا كان الجهاز متوافقًا مع معيار USB HID أو يوفر بروتوكولًا يمكن الوصول إليه، يستطيع UCP التعامل معه حتى لو كان:
+
+* أصليًا.
+* تجاريًا.
+* Generic.
+* Compatible.
+* Controller مخصصًا.
+
+ويتم تحديد القدرات الفعلية للجهاز من خلال الـ Device Profile.
+
+## الهدف
+
+الهدف هو أن يكون UCP قادرًا على الربط بين:
+
+**Gamepad**
+**Phone**
+**Computer**
+**TV**
+**Android TV**
+**Smart TV**
+**ESP32**
+**USB Devices**
+**Games**
+**Emulators**
+**Applications**
+
+من خلال طبقة UCP موحدة.
+
+مثال كامل:
+
+**PS4 Controller**
+→ USB
+→ **UCP Universal Device Adapter**
+→ Wi-Fi
+→ **Android Phone**
+→ UCP Controller/Receiver
+→ **Windows 11**
+→ Game / Emulator
+
+ومثال آخر:
+
+**USB Gamepad**
+→ **Android TV**
+→ UCP
+→ **PPSSPP**
+
+ومثال آخر:
+
+**Phone**
+→ Wi-Fi
+→ **UCP Receiver**
+→ Smart TV / Android TV
+→ Remote / Gamepad / Keyboard / Mouse
+
+## مبدأ مهم
+
+UCP لا يفترض أن كل جهاز يدعم Bluetooth.
+
+**Bluetooth خيار اتصال فقط، وليس شرطًا لعمل UCP.**
+
+الاتصالات الممكنة تشمل:
+
+**USB + USB OTG + HID + Wi-Fi + LAN + Bluetooth + Hardware Bridge**
+
+مع إضافة طرق اتصال جديدة مستقبلًا دون تغيير أساس بروتوكول UCP.
