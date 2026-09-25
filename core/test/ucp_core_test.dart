@@ -54,7 +54,7 @@ void main() {
       );
     });
 
-    test('creates a device with protocol capabilities', () {
+    test('serializes a full device advertisement', () {
       final device = UcpDevice(
         id: 'phone-001',
         name: 'UCP Phone',
@@ -78,7 +78,34 @@ void main() {
       expect(json['connectionTypes'], ['wifi']);
     });
 
-    test('manages sessions and rejects duplicate session ids', () {
+    test('serializes discovery and handshake stages', () {
+      final device = UcpDevice(
+        id: 'phone-001',
+        name: 'Phone',
+        type: UcpDeviceType.phone,
+        platform: 'android',
+      );
+
+      final discovery = UcpDiscoveryMessage(
+        type: UcpMessageType.discoveryAdvertise,
+        device: device,
+      );
+      expect(discovery.toJson()['type'], 'discovery.advertise');
+
+      final hello = UcpHandshakeMessage(
+        stage: UcpHandshakeStage.hello,
+        protocolVersion: UcpProtocol.version,
+        deviceId: device.id,
+        messageType: UcpMessageType.hello,
+      );
+      final restored = UcpHandshakeMessage.fromJson(hello.toJson());
+
+      expect(restored.stage, UcpHandshakeStage.hello);
+      expect(restored.messageType, UcpMessageType.hello);
+      expect(restored.protocolVersion, '1.0');
+    });
+
+    test('manages sessions and sequence/activity safely', () {
       final controller = UcpDevice(
         id: 'phone-001',
         name: 'Phone',
@@ -96,15 +123,22 @@ void main() {
         id: 'session-001',
         controller: controller,
         receiver: receiver,
-        protocolVersion: UcpProtocol.version,
         createdAtMs: 1000,
       );
 
       final manager = UcpSessionManager();
       manager.add(session);
       manager.transition('session-001', UcpSessionState.connected);
+      manager.touch('session-001', 1100, sequence: 1);
 
       expect(manager.require('session-001').state, UcpSessionState.connected);
+      expect(manager.require('session-001').lastSequence, 1);
+      expect(manager.require('session-001').lastActivityMs, 1100);
+
+      expect(
+        () => manager.touch('session-001', 1200, sequence: 0),
+        throwsA(isA<UcpError>()),
+      );
       expect(
         () => manager.add(session),
         throwsA(isA<UcpError>()),
