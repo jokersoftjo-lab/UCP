@@ -1,4 +1,3 @@
-import '../device/ucp_device.dart';
 import 'ucp_flags.dart';
 
 /// Universal UCP/1.0 message envelope.
@@ -79,8 +78,4 @@ class UcpMessage {
           : Map<String, Object?>.from(payload as Map),
     );
   }
-
-  /// Prevents an unused device import from leaking into the public API while
-  /// keeping this file intentionally independent from platform implementations.
-  static String deviceId(UcpDevice device) => device.id;
 }
