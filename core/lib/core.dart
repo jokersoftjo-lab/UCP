@@ -22,3 +22,6 @@ export 'src/messages/handshake_message.dart';
 export 'src/messages/input_message.dart';
 export 'src/messages/feedback_message.dart';
 export 'src/messages/error_message.dart';
+export 'src/wire/ucp_wire_encoder.dart';
+export 'src/wire/ucp_wire_decoder.dart';
+export 'src/wire/ucp_wire_codec.dart';
