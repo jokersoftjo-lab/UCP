@@ -1,6 +1,7 @@
 import '../device/ucp_device.dart';
 import '../protocol/ucp_message_type.dart';
 
+/// Discovery advertisement/request payload model.
 class UcpDiscoveryMessage {
   final UcpMessageType type;
   final UcpDevice device;
@@ -12,10 +13,6 @@ class UcpDiscoveryMessage {
 
   Map<String, Object?> toJson() => {
         'type': type.wireName,
-        'device': {
-          'id': device.id,
-          'name': device.name,
-          'platform': device.platform,
-        },
+        'device': device.toJson(),
       };
 }
