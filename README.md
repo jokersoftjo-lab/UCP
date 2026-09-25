@@ -1,593 +1,1433 @@
-# UCP
-Universal Control Platform - Cross-platform controller, receiver, gaming, device control and SDK ecosystem.
+# UCP Core Protocol v1.0
 
+## المواصفة الهندسية الأساسية
 
-# UCP — Universal Control Platform
+### 1. الهدف
 
-هدف المشروع هو بناء منصة تحكم موحّدة تجعل الأجهزة المختلفة تعمل كأجهزة تحكم وإدخال واستقبال لبعضها عبر الشبكة، USB، Wi-Fi، وأي وسيلة اتصال مدعومة.
+UCP Core Protocol هو البروتوكول الموحد الذي يربط الأجهزة والتطبيقات والألعاب والأجهزة الوسيطة داخل منصة UCP.
 
-## مثال أساسي للنظام
-
-**هاتف Android 5.1 → Windows 11**
-
-يعمل الهاتف كجهاز Remote/Controller، بينما يعمل Windows 11 كجهاز Receiver.
-
-يمكن للهاتف إرسال:
-
-* أزرار Gamepad.
-* عصي Analog.
-* D-Pad.
-* Keyboard.
-* Mouse.
-* Touchpad.
-* Motion / Gyroscope / Accelerometer.
-* أزرار مخصصة.
-* اختصارات وأوامر خاصة.
-* بيانات الألعاب والحالة عند دعمها.
-
-ويقوم برنامج UCP على Windows 11 باستقبال هذه البيانات وتحويلها إلى إدخال مناسب للنظام أو اللعبة أو البرنامج.
-
-## أنظمة التشغيل والأجهزة المستهدفة
-
-### Mobile / Controller
-
-* Android 5.1 وما بعده.
-* Android 9 / 10 / 11 / 12 / 13 / 14 / 15 / 16 وما بعده.
-* iPhone / iOS.
-* iPad / iPadOS.
-
-### Desktop / Receiver
-
-* Windows 11.
-* Windows 10.
-* macOS.
-* Linux.
-
-### TV / Media Devices
-
-* Android TV.
-* Google TV.
-* Android TV Box.
-* Smart TV عند توفر طريقة اتصال مناسبة.
-* أجهزة Media Player المدعومة.
-
-### Gaming
-
-يهدف UCP إلى دعم التحكم في:
-
-* ألعاب الكمبيوتر.
-* ألعاب Android.
-* ألعاب Android TV.
-* المحاكيات مثل PPSSPP وRetroArch وغيرها.
-* الألعاب المبنية باستخدام Unity.
-* الألعاب المبنية باستخدام Unreal Engine.
-* الألعاب التي تستخدم SDK خاص بـ UCP.
-* ألعاب وبرامج يمكن التحكم بها من خلال Keyboard / Mouse / Gamepad أو واجهات إدخال مدعومة.
-
-## أنواع الاستخدام
-
-### 1. Remote Control
-
-مثال:
-
-**Android 5.1 → Windows 11**
-
-الهاتف يعمل كجهاز تحكم عن بعد للكمبيوتر.
-
-### 2. Game Controller
-
-الهاتف يتحول إلى:
-
-* Gamepad.
-* Joystick.
-* Steering Controller.
-* Touch Controller.
-* Motion Controller.
-
-### 3. Keyboard / Mouse
-
-الهاتف يمكن أن يعمل كـ:
-
-* Wireless Keyboard.
-* Wireless Mouse.
-* Touchpad.
-* Macro Pad.
-
-### 4. Smart TV Remote
-
-الهاتف يتحول إلى جهاز تحكم للتلفزيون أو Android TV أو TV Box، حسب البروتوكول وطريقة الاتصال المتاحة.
-
-### 5. Drawing / Pen Controller
-
-يمكن استخدام شاشة الهاتف كلوحة تحكم للرسم، مع دعم اللمس والحركة والضغط المحاكى والاختصارات، حسب قدرات الجهاز والبرنامج المستقبل.
-
-### 6. Game Feedback
-
-لا يقتصر UCP على إرسال الأوامر فقط.
-
-يمكن للنظام مستقبلاً استقبال بيانات من اللعبة أو البرنامج وإظهارها على الهاتف، مثل:
-
-* Health.
-* Ammo.
-* Score.
-* Player State.
-* Map.
-* Missions.
-* Inventory.
-* Game Status.
-* Notifications.
-
-### 7. Hardware Bridge
-
-دعم أجهزة وسيطة مثل:
-
-* ESP32.
-* Arduino.
-* USB Adapters.
-* Sensors.
-* Custom Controllers.
-* أجهزة UCP Hardware مستقبلية.
-
-بحيث يمكن تحويل بيانات الأجهزة والحساسات إلى أوامر UCP وإرسالها إلى الكمبيوتر أو التلفزيون أو اللعبة.
-
-## نظام الاتصال
-
-يجب أن يكون هناك بروتوكول UCP موحّد بين:
-
-**Controller → UCP Protocol → Receiver → Target**
-
-ويمكن أن يكون الاتصال عبر:
-
-* Wi-Fi.
-* LAN.
-* USB.
-* Bluetooth عند الحاجة والدعم.
-* بروتوكولات الأجهزة الخاصة.
-* Hardware Bridges.
-
-ويجب أن يكون النظام قابلاً للتوسعة بحيث يمكن إضافة جهاز أو نظام تشغيل أو لعبة جديدة بدون إعادة بناء المنصة بالكامل.
-
-## الهدف النهائي
-
-UCP ليس مجرد تطبيق Remote واحد.
-
-الهدف هو بناء **منصة تحكم متعددة الأجهزة والأنظمة** يستطيع فيها المستخدم اختيار الجهاز الذي سيرسل منه التحكم، والجهاز الذي سيستقبل التحكم، ونوع التحكم المطلوب، والبرنامج أو اللعبة المستهدفة.
-
-مثال:
-
-**Android 5.1 Phone**
-→ Wi-Fi
-→ **UCP Receiver on Windows 11**
-→ Gamepad / Keyboard / Mouse
-→ **Game / Emulator / Application**
-
-ومثال آخر:
-
-**Android Phone**
-→ Wi-Fi
-→ **Android TV 9**
-→ Game Controller
-→ **PPSSPP**
-
-ومثال آخر:
-
-**iPhone**
-→ Wi-Fi
-→ **Windows 11**
-→ Mouse / Keyboard / Gamepad
-
-ومثال آخر:
-
-**Phone**
-→ Wi-Fi
-→ **ESP32 UCP Bridge**
-→ USB / Hardware
-→ **Computer / Game / Device**
-
-## 8. Reading Control Mode — وضع التحكم بالقراءة
-
-يدعم UCP وضعًا خاصًا للتحكم بجهاز آخر أثناء قراءة وتشغيل الكتب والمستندات والمحتوى التعليمي.
-
-مثال:
-
-**Android 5.1 Phone**
-→ Wi-Fi
-→ **UCP Receiver على Windows 11**
-→ **UCP Reading Engine**
-→ الكتاب / المستند
-
-أو:
-
-**Phone**
-→ Wi-Fi
-→ **Android TV / Tablet / PC**
-→ **Reading Engine**
-→ الكتاب
-
-### وظائف وضع القراءة
-
-يمكن للهاتف التحكم في:
-
-* فتح كتاب.
-* إغلاق الكتاب.
-* الصفحة التالية.
-* الصفحة السابقة.
-* الانتقال إلى صفحة محددة.
-* البحث داخل الكتاب.
-* تكبير وتصغير الصفحة.
-* تغيير اتجاه العرض.
-* تغيير حجم الخط.
-* تغيير نوع الخط.
-* تغيير لون الخلفية.
-* الوضع الليلي.
-* التمرير.
-* الانتقال إلى فصل محدد.
-* الفهرس.
-* العلامات المرجعية.
-* حفظ مكان القراءة.
-* استكمال القراءة من آخر موضع.
-* تشغيل وإيقاف المحتوى الصوتي عند توفره.
-* التحكم بسرعة القراءة الصوتية.
-* التحكم في الكتب التعليمية التفاعلية.
-
-## UCP Reading Engine
-
-يكون محرك القراءة جزءًا مستقلًا من UCP، بحيث لا يعتمد النظام على نوع واحد من الكتب.
-
-الهدف أن يدعم المحرك أنواعًا متعددة من المحتوى، مثل:
-
-* PDF.
-* EPUB.
-* TXT.
-* HTML.
-* كتب مصورة.
-* كتب تعليمية تفاعلية.
-* مستندات.
-* كتب رقمية خاصة.
-* صيغ كتب مستقبلية يضيفها المطورون.
-* صيغ خاصة يتم تعريفها بواسطة UCP.
-
-ويتم تصميم **Reading Engine API** بحيث يمكن إضافة صيغة جديدة دون تغيير نظام التحكم الأساسي.
-
-## التحكم بجهاز آخر
-
-يمكن أن يعمل جهاز UCP كجهاز تحكم لجهاز آخر أثناء القراءة.
-
-مثال:
-
-**Android 5.1**
-→ يتحول إلى Reading Remote
-
-ويتحكم في:
-
-**Windows 11**
-→ الكتاب مفتوح على الشاشة
-
-ويستطيع المستخدم من الهاتف تنفيذ:
-
-**Next Page / Previous Page / Zoom / Search / Chapters / Bookmark / Reading Position**
-
-كما يمكن عكس الفكرة:
-
-**Windows 11**
-→ يتحكم في قارئ الكتب على Android.
-
-## الكتب الخاصة
-
-يدعم UCP نظامًا للكتب الخاصة يمكن من خلاله تعريف:
-
-* صيغة كتاب خاصة.
-* Metadata خاصة.
-* فهرس خاص.
-* صفحات أو مشاهد خاصة.
-* عناصر تفاعلية.
-* ملفات صوتية مرتبطة بالكتاب.
-* فيديوهات مرتبطة بالمحتوى.
-* اختبارات وتمارين.
-* روابط داخلية.
-* بيانات تعليمية إضافية.
-
-ويكون لكل نوع محتوى **Reader Plugin / Engine Adapter** خاص به.
-
-## وضع القراءة عن بعد
-
-يجب فصل:
-
-**Reading Engine**
-
-عن:
-
-**UCP Controller**
-
-بحيث يمكن تشغيل محرك القراءة على جهاز، والتحكم به من جهاز آخر.
-
-مثال:
-
-**Phone**
-→ UCP Controller
-→ Wi-Fi
-→ UCP Receiver
-→ Reading Engine
-→ Book
-
-وبذلك لا يحتاج الهاتف بالضرورة إلى تشغيل الكتاب نفسه؛ يمكن أن يكون مجرد جهاز تحكم.
-
-## المحرك الموحد
-
-يُفضّل أن يكون النظام:
-
-**UCP Core**
-→ **UCP Protocol**
-→ **Device Receiver**
-→ **Reading Engine**
-→ **Book Format Engine**
-
-بحيث يمكن لاحقًا إضافة محركات أخرى بجانب محرك القراءة، مثل:
-
-* Game Engine Adapter.
-* Video Engine.
-* Audio Engine.
-* Education Engine.
-* Document Engine.
-* 3D/Model Viewer.
-* Presentation Engine.
-
-وبذلك يصبح UCP منصة للتحكم والتشغيل وليس مجرد برنامجRemote.
-
-
-ويجب أن يتم تصميم UCP من البداية بحيث يمكن إضافة أجهزة وأنظمة تشغيل واستخدامات جديدة مستقبلاً دون تغيير أس
-اس البروتوكول.
-
-
-
-# UCP — Universal USB & Device Support
-
-## دعم الأجهزة التي لا تدعم Bluetooth
-
-يجب أن يدعم UCP الأجهزة التي لا تحتوي على Bluetooth أو التي لا يمكن التحكم بها لاسلكيًا مباشرة.
-
-يتم ذلك باستخدام:
-
-* USB.
-* USB OTG.
-* USB Host.
-* USB HID.
-* UCP USB Adapter.
-* ESP32/Hardware Bridge.
-* أجهزة تحويل مستقبلية خاصة بـ UCP.
-
-مثال:
-
-**USB Gamepad**
-→ USB
-→ **UCP Receiver / Adapter**
-→ Wi-Fi
-→ **Phone / PC / TV**
-
-## دعم أجهزة الألعاب
-
-يهدف UCP إلى دعم أكبر عدد ممكن من أجهزة التحكم، حسب البروتوكول الذي يوفره الجهاز ونظام التشغيل.
-
-أمثلة:
-
-* PlayStation 4 Controllers.
-* PlayStation Controllers الأصلية.
-* PlayStation Controllers غير الأصلية.
-* USB Gamepads.
-* Generic HID Controllers.
-* Joysticks.
-* Arcade Controllers.
-* Steering Wheels.
-* Flight Controllers.
-* Pedals.
-* Fight Sticks.
-* أجهزة تحكم مخصصة.
-
-ولا يشترط أن يكون الجهاز Bluetooth حتى يستطيع UCP استخدامه.
-
-## تحويل USB إلى UCP
-
-يمكن استخدام UCP كطبقة تحويل:
-
-**USB Device**
-→ **UCP USB Adapter**
-→ **UCP Protocol**
-→ **Target Device**
-
-مثال:
-
-**PS4 Controller**
-→ USB
-→ UCP
-→ Wi-Fi
-→ Android Phone
-
-أو:
-
-**PS4 Controller**
-→ USB
-→ UCP
-→ Windows 11
-
-أو:
-
-**USB Gamepad**
-→ USB
-→ UCP
-→ Android TV
-
-## دعم الهاتف
-
-يمكن للهاتف أن يكون:
-
-### Controller
-
-**Phone → Wi-Fi → PC / TV / Phone**
-
-### Receiver
-
-**USB Controller → Phone**
-
-### Bridge
-
-**USB Device → Phone → Wi-Fi → Computer / TV**
-
-### Remote
-
-**Phone → Wi-Fi → Smart TV / Android TV / PC**
-
-## دعم الكمبيوتر
-
-يمكن للكمبيوتر أن يعمل كـ:
-
-* UCP Receiver.
-* UCP Controller.
-* USB Device Bridge.
-* Gamepad Receiver.
-* Keyboard/Mouse Receiver.
-* Smart Device Gateway.
-* Reading Engine Host.
-* Game Engine Host.
-
-مثال:
-
-**USB Gamepad**
-→ Windows 11
-→ UCP Receiver
-→ Game / Emulator
-
-## دعم التلفزيون
-
-يجب تصميم UCP لدعم:
-
-* Android TV.
-* Google TV.
-* Android TV Box.
-* Smart TV المدعوم.
-* Media Players المدعومة.
-
-مثال:
-
-**USB Gamepad**
-→ Android TV
-→ UCP
-→ Game / Emulator
-
-أو:
-
-**Phone**
-→ Wi-Fi
-→ Android TV
-→ UCP Receiver
-→ Game Controller
-
-## Universal Device Adapter
-
-يجب أن يحتوي UCP على طبقة تسمى:
-
-**Universal Device Adapter — UDA**
-
-وظيفتها اكتشاف الجهاز وتحويله إلى نموذج UCP موحد.
+النظام الأساسي:
 
 ```text
-Physical Device
-      ↓
-USB / Bluetooth / Wi-Fi / OTG / HID
-      ↓
-Universal Device Adapter
-      ↓
-UCP Protocol
-      ↓
-Target Device
+Controller
+    ↓
+Transport
+    ↓
+UCP Core Protocol
+    ↓
+Receiver / Adapter
+    ↓
+Target
 ```
 
-وبذلك لا يحتاج كل برنامج إلى معرفة تفاصيل كل جهاز.
+مثال أساسي:
 
-## التعرف على الجهاز
+```text
+Android 5.1 Phone
+       ↓ Wi-Fi
+UCP Protocol v1.0
+       ↓
+Windows 11 Receiver
+       ↓
+Gamepad / Keyboard / Mouse
+       ↓
+Game / Emulator / Application
+```
 
-عند توصيل جهاز جديد، يحاول UCP اكتشاف:
+---
 
-* Vendor ID.
-* Product ID.
-* Device Type.
-* HID Reports.
-* Buttons.
-* Axes.
-* Triggers.
-* D-Pad.
-* Sensors.
-* Vibration.
-* LEDs.
-* Battery Status عند توفرها.
+# 2. مكونات Core Protocol
 
-ثم ينشئ UCP Device Profile مناسبًا للجهاز.
+يتكون UCP Core Protocol v1.0 من الوحدات التالية:
 
-## الأجهزة الأصلية وغير الأصلية
+```text
+UCP Core
+├── Protocol Version
+├── Device Identity
+├── Capability System
+├── Discovery
+├── Handshake
+├── Session
+├── Authentication
+├── Transport
+├── Message System
+├── Input System
+├── Output / Feedback
+├── Device State
+├── Error System
+├── Heartbeat
+├── Configuration
+├── Profiles
+└── Extension System
+```
 
-يجب ألا يعتمد UCP على اسم الشركة فقط.
+---
 
-إذا كان الجهاز متوافقًا مع معيار USB HID أو يوفر بروتوكولًا يمكن الوصول إليه، يستطيع UCP التعامل معه حتى لو كان:
+# 3. Protocol Version
 
-* أصليًا.
-* تجاريًا.
-* Generic.
-* Compatible.
-* Controller مخصصًا.
+الإصدار الأول:
 
-ويتم تحديد القدرات الفعلية للجهاز من خلال الـ Device Profile.
+```text
+UCP/1.0
+```
 
-## الهدف
+ويجب أن يحتوي كل اتصال على معلومات الإصدار.
 
-الهدف هو أن يكون UCP قادرًا على الربط بين:
+مثال:
 
-**Gamepad**
-**Phone**
-**Computer**
-**TV**
-**Android TV**
-**Smart TV**
-**ESP32**
-**USB Devices**
-**Games**
-**Emulators**
-**Applications**
+```text
+protocol:
+  name: UCP
+  major: 1
+  minor: 0
+```
 
-من خلال طبقة UCP موحدة.
+### قواعد التوافق
 
-مثال كامل:
+`major` يمثل تغييرات غير متوافقة.
 
-**PS4 Controller**
-→ USB
-→ **UCP Universal Device Adapter**
-→ Wi-Fi
-→ **Android Phone**
-→ UCP Controller/Receiver
-→ **Windows 11**
-→ Game / Emulator
+`minor` يمثل إضافات متوافقة.
 
-ومثال آخر:
+مثال:
 
-**USB Gamepad**
-→ **Android TV**
-→ UCP
-→ **PPSSPP**
+```text
+1.0
+1.1
+1.2
+```
 
-ومثال آخر:
+يمكن أن تضيف خصائص جديدة مع الحفاظ على التوافق.
 
-**Phone**
-→ Wi-Fi
-→ **UCP Receiver**
-→ Smart TV / Android TV
-→ Remote / Gamepad / Keyboard / Mouse
+أما:
 
-## مبدأ مهم
+```text
+2.0
+```
 
-UCP لا يفترض أن كل جهاز يدعم Bluetooth.
+فقد يحتوي على تغييرات أساسية في البروتوكول.
 
-**Bluetooth خيار اتصال فقط، وليس شرطًا لعمل UCP.**
+---
 
-الاتصالات الممكنة تشمل:
+# 4. Device Identity
 
-**USB + USB OTG + HID + Wi-Fi + LAN + Bluetooth + Hardware Bridge**
+كل جهاز UCP يجب أن يمتلك هوية منطقية.
 
-مع إضافة طرق اتصال جديدة مستقبلًا دون تغيير أساس بروتوكول UCP.
+```text
+Device ID
+Device Name
+Device Type
+Platform
+OS Version
+UCP Version
+Capabilities
+Connection Types
+```
+
+مثال:
+
+```json
+{
+  "device_id": "device-xxxxxxxx",
+  "name": "My Android Phone",
+  "type": "controller",
+  "platform": "android",
+  "os_version": "5.1",
+  "ucp_version": "1.0"
+}
+```
+
+ولا يعتمد `Device ID` على عنوان IP لأن عنوان IP قد يتغير.
+
+---
+
+# 5. Device Types
+
+الإصدار الأول يعرف أنواعًا عامة:
+
+```text
+controller
+receiver
+bridge
+game
+application
+tv
+computer
+phone
+tablet
+hardware
+reader
+custom
+```
+
+ويمكن لجهاز واحد أن يمتلك أكثر من وظيفة.
+
+مثال:
+
+```text
+Phone
+├── controller
+├── receiver
+└── remote
+```
+
+---
+
+# 6. Capability System
+
+الجهاز يعلن عن قدراته.
+
+مثال:
+
+```text
+GAMEPAD
+KEYBOARD
+MOUSE
+TOUCHPAD
+MOTION
+USB
+HID
+READING
+SMART_REMOTE
+VIBRATION
+AUDIO
+CAMERA
+MICROPHONE
+CUSTOM
+```
+
+مثال:
+
+```json
+{
+  "capabilities": [
+    "gamepad",
+    "keyboard",
+    "mouse",
+    "motion"
+  ]
+}
+```
+
+وهذا يسمح للجهاز المستقبل بمعرفة ما يستطيع الجهاز المرسل القيام به.
+
+---
+
+# 7. Capability Parameters
+
+لا يكفي معرفة أن الجهاز يدعم Gamepad.
+
+يجب معرفة التفاصيل.
+
+مثال:
+
+```text
+Gamepad
+├── Buttons
+├── DPad
+├── Left Stick
+├── Right Stick
+├── Left Trigger
+├── Right Trigger
+├── Vibration
+└── Motion
+```
+
+مثال:
+
+```json
+{
+  "capability": "gamepad",
+  "sticks": 2,
+  "buttons": 16,
+  "triggers": 2,
+  "vibration": true
+}
+```
+
+وبذلك يستطيع UCP بناء Profile مناسب للجهاز.
+
+---
+
+# 8. Discovery
+
+قبل إنشاء Session يجب أن يستطيع الجهازان اكتشاف بعضهما.
+
+مثال:
+
+```text
+Android Phone
+      ↓
+UCP Discovery
+      ↓
+Windows 11
+```
+
+يمكن أن يستخدم Discovery:
+
+```text
+Wi-Fi LAN
+UDP
+mDNS
+Broadcast
+Multicast
+Manual IP
+QR / Pairing Code
+```
+
+ويجب ألا يعتمد البروتوكول على طريقة Discovery واحدة.
+
+---
+
+# 9. Device Advertisement
+
+الجهاز المستقبل يعلن:
+
+```text
+UCP Receiver
+Windows 11
+Device Name
+Device ID
+Protocol Version
+Supported Capabilities
+Connection Port
+Security State
+```
+
+مثال:
+
+```text
+UCP Receiver
+Windows-PC
+192.168.x.x
+UCP/1.0
+GAMEPAD
+KEYBOARD
+MOUSE
+READING
+```
+
+---
+
+# 10. Handshake
+
+بعد Discovery تبدأ عملية Handshake.
+
+```text
+Controller
+    ↓ HELLO
+Receiver
+    ↓ HELLO_ACK
+Controller
+    ↓ CAPABILITIES
+Receiver
+    ↓ CAPABILITIES_ACK
+Controller
+    ↓ SESSION_REQUEST
+Receiver
+    ↓ SESSION_ACCEPT
+```
+
+بعدها تصبح Session جاهزة.
+
+---
+
+# 11. Session
+
+كل اتصال فعال يحصل على Session.
+
+```text
+Session ID
+Controller ID
+Receiver ID
+Protocol Version
+Created Time
+State
+Capabilities
+Security State
+```
+
+حالات Session:
+
+```text
+DISCONNECTED
+DISCOVERING
+CONNECTING
+AUTHENTICATING
+NEGOTIATING
+CONNECTED
+PAUSED
+CLOSING
+CLOSED
+ERROR
+```
+
+---
+
+# 12. Session ID
+
+يجب ألا تعتمد الرسائل على IP فقط.
+
+كل Session تمتلك:
+
+```text
+Session ID
+```
+
+مثال:
+
+```text
+session-xxxxxxxx
+```
+
+وتستخدم الرسائل:
+
+```text
+Device ID
+Session ID
+Message ID
+Timestamp
+```
+
+---
+
+# 13. Message System
+
+كل رسالة UCP يجب أن تحتوي على Header موحد.
+
+المفهوم الأساسي:
+
+```text
+UCP Message
+├── Version
+├── Message ID
+├── Message Type
+├── Source
+├── Destination
+├── Session
+├── Timestamp
+├── Flags
+└── Payload
+```
+
+مثال منطقي:
+
+```json
+{
+  "version": "1.0",
+  "message_id": "msg-001",
+  "type": "input.gamepad",
+  "source": "phone-001",
+  "destination": "pc-001",
+  "session": "session-001",
+  "timestamp": 123456789,
+  "payload": {}
+}
+```
+
+---
+
+# 14. Message Types
+
+الإصدار الأول يعرّف مجموعات الرسائل:
+
+```text
+system.*
+device.*
+discovery.*
+session.*
+auth.*
+input.*
+output.*
+feedback.*
+state.*
+config.*
+profile.*
+reading.*
+remote.*
+usb.*
+error.*
+```
+
+---
+
+# 15. Input Messages
+
+نظام الإدخال هو أحد أهم أجزاء UCP.
+
+### Button
+
+```text
+input.button
+```
+
+بياناته:
+
+```text
+button
+state
+timestamp
+```
+
+### Axis
+
+```text
+input.axis
+```
+
+مثل:
+
+```text
+left_x
+left_y
+right_x
+right_y
+```
+
+القيم تكون موحدة في Core.
+
+مثلاً:
+
+```text
+-1.0 → 1.0
+```
+
+### Trigger
+
+```text
+input.trigger
+```
+
+النطاق:
+
+```text
+0.0 → 1.0
+```
+
+### D-Pad
+
+```text
+input.dpad
+```
+
+### Motion
+
+```text
+input.motion
+```
+
+يمكن أن يحتوي:
+
+```text
+accelerometer
+gyroscope
+rotation
+orientation
+```
+
+---
+
+# 16. Keyboard
+
+رسائل:
+
+```text
+input.keyboard.down
+input.keyboard.up
+input.keyboard.text
+```
+
+ويجب استخدام معرفات مفاتيح موحدة داخل Core بدل إرسال أسماء خاصة بنظام Windows أو Android.
+
+ثم يقوم Receiver بتحويلها إلى النظام المحلي.
+
+---
+
+# 17. Mouse
+
+يدعم:
+
+```text
+mouse.move
+mouse.button.down
+mouse.button.up
+mouse.wheel
+mouse.absolute
+mouse.relative
+```
+
+مثال:
+
+```text
+Phone Touchpad
+      ↓
+UCP Mouse Message
+      ↓
+Windows Mouse Input
+```
+
+---
+
+# 18. Touchpad
+
+يدعم:
+
+```text
+touch.down
+touch.move
+touch.up
+touch.cancel
+```
+
+مع:
+
+```text
+pointer_id
+x
+y
+pressure
+timestamp
+```
+
+ويمكن استخدامه كـ:
+
+```text
+Touchpad
+Drawing Controller
+Remote Pointer
+Game Touch Controller
+```
+
+---
+
+# 19. Feedback
+
+UCP ليس اتجاهًا واحدًا فقط.
+
+يمكن للـ Receiver إرسال:
+
+```text
+feedback.vibration
+feedback.audio
+feedback.notification
+feedback.status
+feedback.game
+```
+
+مثال:
+
+```text
+Windows Game
+    ↓
+UCP Receiver
+    ↓
+Wi-Fi
+    ↓
+Phone
+    ↓
+Vibration
+```
+
+---
+
+# 20. Game State
+
+عند استخدام UCP SDK يمكن للعبة إرسال:
+
+```text
+health
+ammo
+score
+map
+player
+mission
+inventory
+game_state
+```
+
+مثال:
+
+```json
+{
+  "type": "state.game",
+  "health": 85,
+  "ammo": 24,
+  "score": 1200
+}
+```
+
+---
+
+# 21. Reading Protocol
+
+يدعم Core مستقبلًا محرك القراءة.
+
+الرسائل الأساسية:
+
+```text
+reading.open
+reading.close
+reading.next
+reading.previous
+reading.goto
+reading.search
+reading.bookmark
+reading.position
+reading.chapter
+reading.zoom
+reading.settings
+```
+
+مثال:
+
+```text
+Android 5.1
+    ↓
+reading.next
+    ↓
+Windows 11
+    ↓
+Reading Engine
+    ↓
+Next Page
+```
+
+---
+
+# 22. USB / HID Protocol
+
+UCP Core يجب أن يكون قادرًا على وصف جهاز USB.
+
+مثال:
+
+```text
+USB Device
+├── Vendor ID
+├── Product ID
+├── Interface
+├── HID
+├── Buttons
+├── Axes
+├── Triggers
+└── Features
+```
+
+ثم:
+
+```text
+USB
+ ↓
+UDA
+ ↓
+UCP Device Model
+ ↓
+UCP Protocol
+```
+
+UDA تعني:
+
+**Universal Device Adapter**
+
+وهي طبقة تحويل الأجهزة الفيزيائية إلى نموذج UCP موحد.
+
+---
+
+# 23. Profiles
+
+كل جهاز أو لعبة يمكن أن يمتلك Profile.
+
+مثال:
+
+```text
+PPSSPP
+├── Button Mapping
+├── Analog Mapping
+├── Trigger Mapping
+└── Motion Mapping
+```
+
+أو:
+
+```text
+Windows Mouse
+├── Sensitivity
+├── Buttons
+└── Wheel
+```
+
+أو:
+
+```text
+Reading
+├── Next Page
+├── Previous Page
+├── Zoom
+└── Search
+```
+
+---
+
+# 24. Target System
+
+الجهاز المرسل لا يحتاج إلى معرفة تفاصيل الجهاز المستهدف.
+
+مثال:
+
+```text
+Phone
+ ↓
+UCP
+ ↓
+Windows Adapter
+ ↓
+Gamepad API
+```
+
+أو:
+
+```text
+Phone
+ ↓
+UCP
+ ↓
+Android TV Adapter
+ ↓
+Android Input
+```
+
+أو:
+
+```text
+Phone
+ ↓
+UCP
+ ↓
+ESP32 Adapter
+ ↓
+USB HID
+```
+
+---
+
+# 25. Transport Layer
+
+UCP Core لا يجب أن يرتبط بطبقة نقل واحدة.
+
+يجب تعريف:
+
+```text
+UCP Transport Interface
+```
+
+وتنفيذ عدة Transports:
+
+```text
+Wi-Fi
+LAN
+USB
+Bluetooth
+USB OTG
+ESP32 Bridge
+```
+
+البروتوكول نفسه يبقى موحدًا.
+
+---
+
+# 26. Reliability
+
+يجب أن تعرف الرسائل هل تحتاج إلى ضمان وصول أم لا.
+
+مثال:
+
+```text
+RELIABLE
+UNRELIABLE
+ORDERED
+UNORDERED
+```
+
+مثلاً:
+
+Gamepad axis:
+
+```text
+UNRELIABLE / LATEST
+```
+
+بينما:
+
+```text
+profile.save
+```
+
+يحتاج:
+
+```text
+RELIABLE
+```
+
+---
+
+# 27. Sequence Numbers
+
+رسائل الإدخال المهمة يمكن أن تحتوي:
+
+```text
+sequence_number
+```
+
+لمنع مشاكل ترتيب الرسائل.
+
+مثال:
+
+```text
+100
+101
+102
+103
+```
+
+إذا وصل:
+
+```text
+100
+102
+101
+```
+
+يستطيع المستقبل معرفة الترتيب.
+
+---
+
+# 28. Timestamp
+
+كل رسالة يجب أن تحتوي على وقت منطقي:
+
+```text
+timestamp
+```
+
+ويستخدم للتعامل مع:
+
+* تأخير الشبكة.
+* Motion.
+* Input.
+* Game State.
+* Synchronization.
+
+---
+
+# 29. Heartbeat
+
+الاتصال المستمر يحتاج إلى Heartbeat.
+
+```text
+PING
+ ↓
+PONG
+```
+
+إذا انقطع الاتصال:
+
+```text
+CONNECTED
+ ↓
+TIMEOUT
+ ↓
+DISCONNECTED
+```
+
+ويجب ألا يؤدي انقطاع الشبكة إلى تجميد النظام.
+
+---
+
+# 30. Safety State
+
+في حالة فقدان الاتصال يجب أن يستطيع Receiver تنفيذ:
+
+```text
+Fail-Safe
+```
+
+مثلاً Gamepad:
+
+```text
+Disconnect
+ ↓
+Release Buttons
+ ↓
+Reset Axes
+ ↓
+Stop Input
+```
+
+وهذا مهم جدًا حتى لا يبقى زر مضغوطًا بسبب انقطاع الشبكة.
+
+---
+
+# 31. Authentication
+
+يجب أن يحتوي UCP على طبقة Authentication مستقلة عن Transport.
+
+الإصدار الأول يمكن أن يدعم:
+
+```text
+Pairing Code
+Device Trust
+Session Token
+Secure Authentication
+```
+
+مع إمكانية إضافة تشفير قوي لاحقًا دون تغيير نموذج الرسائل.
+
+---
+
+# 32. Permissions
+
+الجهاز لا يحصل تلقائيًا على كل الصلاحيات.
+
+مثلاً:
+
+```text
+Phone
+ ↓
+Request
+ ↓
+Windows
+ ↓
+Permission:
+   GAMEPAD
+   KEYBOARD
+```
+
+ولا يستطيع إرسال:
+
+```text
+USB
+SYSTEM_CONTROL
+```
+
+إلا إذا سمح المستقبل بذلك.
+
+---
+
+# 33. Error System
+
+الأخطاء يجب أن تكون موحدة.
+
+مثال:
+
+```text
+UCP_ERR_PROTOCOL_VERSION
+UCP_ERR_INVALID_MESSAGE
+UCP_ERR_AUTH_FAILED
+UCP_ERR_SESSION_NOT_FOUND
+UCP_ERR_CAPABILITY_NOT_SUPPORTED
+UCP_ERR_PERMISSION_DENIED
+UCP_ERR_DEVICE_NOT_FOUND
+UCP_ERR_TRANSPORT
+UCP_ERR_TIMEOUT
+```
+
+---
+
+# 34. Extension System
+
+UCP يجب ألا يتوقف عند v1.0.
+
+يجب السماح برسائل خاصة:
+
+```text
+extension.<vendor>.<feature>
+```
+
+مثال لشركة تستخدم UCP:
+
+```text
+extension.company.game_special
+```
+
+ولا يجب أن تكسر هذه الإضافات Core Protocol.
+
+---
+
+# 35. Company / Game SDK
+
+الألعاب والشركات تستطيع استخدام UCP SDK.
+
+مثال:
+
+```text
+Game
+ ↓
+UCP SDK
+ ↓
+UCP Core
+ ↓
+Phone
+```
+
+يمكن للعبة تعريف أوامر خاصة بها.
+
+مثال:
+
+```text
+GAME_SPECIAL_01
+GAME_SPECIAL_02
+OPEN_MAP
+SHOW_INVENTORY
+PLAYER_STATUS
+```
+
+مع صلاحيات محددة.
+
+---
+
+# 36. Device State
+
+كل جهاز يستطيع الإعلان عن حالته:
+
+```text
+online
+offline
+busy
+available
+paired
+connected
+locked
+```
+
+ويستطيع تحديث قدراته أثناء Session عند الحاجة.
+
+---
+
+# 37. Configuration
+
+إعدادات UCP يجب ألا تكون مرتبطة بالتطبيق نفسه.
+
+مثال:
+
+```text
+UCP Configuration
+├── Network
+├── Security
+├── Device
+├── Input
+├── Profiles
+├── Permissions
+└── Plugins
+```
+
+---
+
+# 38. Localisation
+
+Core يجب أن يبقى مستقلًا عن اللغة.
+
+الرسائل الداخلية تكون IDs ثابتة:
+
+```text
+GAMEPAD
+KEYBOARD
+MOUSE
+READING
+```
+
+أما النصوص التي تظهر للمستخدم فتتم ترجمتها في التطبيق.
+
+وبذلك يمكن دعم:
+
+```text
+Arabic
+English
+French
+...
+```
+
+دون تغيير البروتوكول.
+
+---
+
+# 39. Platform Independence
+
+UCP Core لا يعتمد على:
+
+```text
+Windows API
+Android API
+Flutter UI
+Unity
+Unreal
+```
+
+بل يكون Core مستقلًا.
+
+ثم يتم بناء Adapters:
+
+```text
+Android Adapter
+Windows Adapter
+iOS Adapter
+Linux Adapter
+macOS Adapter
+Android TV Adapter
+ESP32 Adapter
+Unity Adapter
+Unreal Adapter
+```
+
+---
+
+# 40. البنية النهائية
+
+```text
+                    UCP CORE
+                       │
+              ┌────────┴────────┐
+              │                 │
+          Protocol          Device Model
+              │                 │
+        ┌─────┴─────┐      Capabilities
+        │           │
+    Messages      Sessions
+        │
+   ┌────┼────────┬────────┐
+   │    │        │        │
+Input Feedback Reading Remote
+   │
+   ▼
+Transport Layer
+   │
+┌──┼────┬──────┬──────┐
+│  │    │      │      │
+WiFi USB Bluetooth LAN HID
+│
+▼
+Platform / Hardware Adapters
+│
+├── Windows
+├── Android
+├── iOS
+├── Linux
+├── macOS
+├── Android TV
+├── ESP32
+└── Game/Engine SDK
+```
+
+# 41. ترتيب التنفيذ
+
+لن ننفذ كل شيء دفعة واحدة.
+
+الترتيب الرسمي:
+
+### المرحلة A — Core Model
+
+```text
+Protocol
+Device
+Capability
+Message
+```
+
+### المرحلة B — Session
+
+```text
+Discovery
+Handshake
+Session
+Heartbeat
+Disconnect
+```
+
+### المرحلة C — Transport
+
+نبدأ:
+
+```text
+Wi-Fi / LAN
+```
+
+ثم:
+
+```text
+USB
+```
+
+ثم:
+
+```text
+Bluetooth
+```
+
+ثم:
+
+```text
+Hardware Bridge
+```
+
+### المرحلة D — Input
+
+```text
+Gamepad
+Analog
+DPad
+Keyboard
+Mouse
+Touchpad
+Motion
+```
+
+### المرحلة E — Windows Receiver
+
+```text
+UCP Receiver
+↓
+Windows Input Adapter
+```
+
+### المرحلة F — Android Controller
+
+يستهدف:
+
+```text
+Android 5.1+
+```
+
+مع مراعاة قيود النظام القديم.
+
+### المرحلة G — Profiles
+
+```text
+Game Profiles
+Application Profiles
+Reading Profiles
+Remote Profiles
+```
+
+### المرحلة H — USB / HID
+
+```text
+USB Device
+↓
+UDA
+↓
+UCP
+```
+
+### المرحلة I — SDK
+
+```text
+Unity
+Unreal
+Native
+```
+
+### المرحلة J — Advanced Systems
+
+```text
+Reading Engine
+Smart Remote
+Game Feedback
+Save Hub
+ESP32
+Advanced Hardware
+```
+
+---
+
+# 42. معيار نجاح UCP Core Protocol v1.0
+
+لا نعتبر Core v1.0 مكتملًا لمجرد أن الكود يعمل.
+
+يجب أن يحقق:
+
+* تعريف ثابت للأجهزة.
+* تعريف ثابت للقدرات.
+* رسائل موحدة.
+* Sessions واضحة.
+* Discovery.
+* Handshake.
+* Heartbeat.
+* Timeout.
+* Fail-Safe.
+* Error Codes.
+* Versioning.
+* Extensibility.
+* Transport abstraction.
+* Platform independence.
+* Unit Tests.
+* Protocol Tests.
+* Serialization Tests.
+* Compatibility Tests.
+* Documentation.
+
+والأهم:
+
+**أي تطبيق جديد يجب أن يستطيع استخدام UCP Core بدون معرفة تفاصيل التطبيق الآخر.**
+
+---
+
+# 43. أول مسار رسمي للتنفيذ
+
+بعد اعتماد هذه المواصفة، يكون أول مسار برمجي:
+
+```text
+core/
+└── lib/
+    ├── core.dart
+    │
+    └── src/
+        ├── protocol/
+        │   ├── ucp_protocol.dart
+        │   ├── ucp_message.dart
+        │   ├── ucp_message_type.dart
+        │   └── ucp_flags.dart
+        │
+        ├── device/
+        │   ├── ucp_device.dart
+        │   ├── ucp_device_type.dart
+        │   ├── ucp_capability.dart
+        │   └── ucp_device_state.dart
+        │
+        ├── session/
+        │   ├── ucp_session.dart
+        │   ├── ucp_session_state.dart
+        │   └── ucp_session_manager.dart
+        │
+        ├── transport/
+        │   ├── ucp_transport.dart
+        │   └── ucp_transport_state.dart
+        │
+        ├── messages/
+        │   ├── discovery_message.dart
+        │   ├── handshake_message.dart
+        │   ├── input_message.dart
+        │   ├── feedback_message.dart
+        │   └── error_message.dart
+        │
+        └── errors/
+            └── ucp_error.dart
+```
+
+ثم نبدأ كتابة **الاختبارات أولًا** لكل جزء، وبعدها التنفيذ.
+
+**الهدف الأول القابل للتحقق:**
+
+```text
+Android Controller
+        ↓
+UCP Discovery
+        ↓
+Windows Receiver
+        ↓
+Handshake
+        ↓
+Session
+        ↓
+Heartbeat
+        ↓
+Gamepad Input
+```
+
+وهذا سيكون أول خط أساس حقيقي لـ **UCP Core Protocol v1.0** قبل إضافة الوظائف الكبيرة الأخرى.
