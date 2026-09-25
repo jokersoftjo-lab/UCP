@@ -2,7 +2,7 @@ import '../errors/ucp_error.dart';
 import 'ucp_session.dart';
 import 'ucp_session_state.dart';
 
-/// In-memory session registry for the protocol core.
+/// In-memory registry and lifecycle coordinator for UCP sessions.
 class UcpSessionManager {
   final Map<String, UcpSession> _sessions = {};
 
@@ -32,9 +32,31 @@ class UcpSessionManager {
   }
 
   void transition(String sessionId, UcpSessionState state) {
-    require(sessionId).state = state;
+    final session = require(sessionId);
+    session.state = state;
+  }
+
+  void touch(String sessionId, int timestampMs, {int? sequence}) {
+    final session = require(sessionId);
+    if (timestampMs < session.lastActivityMs) {
+      throw UcpError(
+        code: UcpErrorCode.invalidMessage,
+        message: 'Session activity timestamp moved backwards',
+      );
+    }
+    session.lastActivityMs = timestampMs;
+    if (sequence != null) {
+      if (sequence < session.lastSequence) {
+        throw UcpError(
+          code: UcpErrorCode.invalidMessage,
+          message: 'Session sequence moved backwards',
+        );
+      }
+      session.lastSequence = sequence;
+    }
   }
 
   UcpSession? remove(String sessionId) => _sessions.remove(sessionId);
+
   void clear() => _sessions.clear();
 }
