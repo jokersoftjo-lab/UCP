@@ -1,7 +1,8 @@
 import '../device/ucp_device.dart';
+import '../protocol/ucp_protocol.dart';
 import 'ucp_session_state.dart';
 
-/// Represents one logical controller-to-target UCP session.
+/// Represents one logical controller-to-receiver UCP session.
 class UcpSession {
   final String id;
   final UcpDevice controller;
@@ -9,15 +10,19 @@ class UcpSession {
   final String protocolVersion;
   final int createdAtMs;
   UcpSessionState state;
+  int lastSequence;
+  int lastActivityMs;
 
   UcpSession({
     required this.id,
     required this.controller,
     required this.receiver,
-    required this.protocolVersion,
+    this.protocolVersion = UcpProtocol.version,
     required this.createdAtMs,
     this.state = UcpSessionState.disconnected,
-  });
+    this.lastSequence = 0,
+    int? lastActivityMs,
+  }) : lastActivityMs = lastActivityMs ?? createdAtMs;
 
   Map<String, Object?> toJson() => {
         'id': id,
@@ -26,5 +31,7 @@ class UcpSession {
         'protocolVersion': protocolVersion,
         'createdAtMs': createdAtMs,
         'state': state.wireName,
+        'lastSequence': lastSequence,
+        'lastActivityMs': lastActivityMs,
       };
 }
